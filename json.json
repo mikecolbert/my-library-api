@@ -1,0 +1,78 @@
+Request:
+GET /data HTTP/1.1
+Host: localhost:5000
+
+Response:
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+    {
+        "id": 1,
+        "name": "John",
+        "age": 35
+    },
+    {
+        "id": 2,
+        "name": "Jane",
+        "age": 28
+    },
+    {
+        "id": 3,
+        "name": "Bob",
+        "age": 42
+    }
+]
+
+
+Request:
+POST /data HTTP/1.1
+Host: localhost:5000
+Content-Type: application/json
+
+{
+    "name": "Alice",
+    "age": 30
+}
+
+Response:
+HTTP/1.1 201 Created
+Content-Type: application/json
+
+{
+    "status": "success"
+}
+
+
+
+
+Request:
+PUT /data/3 HTTP/1.1
+Host: localhost:5000
+Content-Type: application/json
+
+{
+    "name": "Robert",
+    "age": 44
+}
+
+Response:
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "status": "success"
+}
+
+
+
+Request:
+DELETE /data/2 HTTP/1.1
+Host: localhost:5000
+
+Response:
+HTTP/1.1 204 No Content
+
+
+
+
