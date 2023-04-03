@@ -24,13 +24,13 @@ db = pymysql.connect(
 )
 
 
-@app.route("/")
+@app.route("/api/v1/")
 def index():
     return jsonify({"message": "Welcome to the 'My Library' API"}), 200
 
 
 # Read operation (get all records)
-@app.route("/books", methods=["GET"])
+@app.route("/api/v1/books", methods=["GET"])
 def get_books():
     try:
         cursor = db.cursor()
@@ -66,7 +66,7 @@ def get_books():
 
 
 # Read operation (get one record)
-@app.route("/book/<int:id>", methods=["GET"])
+@app.route("/api/v1/book/<int:id>", methods=["GET"])
 def get_book(id):
     try:
         cursor = db.cursor()
@@ -85,7 +85,7 @@ def get_book(id):
 
 
 # Insert operation
-@app.route("/books", methods=["POST"])
+@app.route("/api/v1/books", methods=["POST"])
 def add_book():
     try:
         cursor = db.cursor()
@@ -131,7 +131,7 @@ def add_book():
 
 
 # # Delete operation
-# @app.route("/data/<int:id>", methods=["DELETE"])
+# @app.route("/api/v1/book/<int:id>", methods=["DELETE"])
 # def delete_data(id):
 #     try:
 #         cursor = db.cursor()
@@ -149,7 +149,7 @@ def add_book():
 
 
 # # Update operation
-# @app.route("/data/<int:id>", methods=["PUT"])
+# @app.route("/api/v1/book/<int:id>", methods=["PUT"])
 # def update_data(id):
 #     try:
 #         cursor = db.cursor()
