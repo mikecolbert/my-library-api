@@ -133,10 +133,12 @@ def add_book():
 # Delete operation
 @app.route("/api/v1/book/<int:id>", methods=["DELETE"])
 def delete_book(id):
+    logging.info("Deleting book_id: " + id)
     try:
         cursor = db.cursor()
         query = "DELETE FROM books WHERE book_id = %s"
         value = (id,)
+        logging.info(query + value)
         cursor.execute(query, value)
         db.commit()
         cursor.close()
