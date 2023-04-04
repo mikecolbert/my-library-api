@@ -130,22 +130,22 @@ def add_book():
         return jsonify({"error": str(e)}), 500
 
 
-# # Delete operation
-# @app.route("/api/v1/book/<int:id>", methods=["DELETE"])
-# def delete_data(id):
-#     try:
-#         cursor = db.cursor()
-#         query = "DELETE FROM table_name WHERE id = %s"
-#         value = (id,)
-#         cursor.execute(query, value)
-#         db.commit()
-#         cursor.close()
-#         logging.info("Successfully deleted data from database")
-#         return jsonify({"status": "success"}), 204
-#     except Exception as e:
-#         db.rollback()
-#         logging.error("Error occurred while deleting data from database: %s", str(e))
-#         return jsonify({"error": str(e)}), 500
+# Delete operation
+@app.route("/api/v1/book/<int:id>", methods=["DELETE"])
+def delete_book(id):
+    try:
+        cursor = db.cursor()
+        query = "DELETE FROM books WHERE book_id = %s"
+        value = (id,)
+        cursor.execute(query, value)
+        db.commit()
+        cursor.close()
+        logging.info("Successfully deleted data from database")
+        return jsonify({"status": "success"}), 204
+    except Exception as e:
+        db.rollback()
+        logging.error("Error occurred while deleting data from database: %s", str(e))
+        return jsonify({"error": str(e)}), 500
 
 
 # # Update operation
