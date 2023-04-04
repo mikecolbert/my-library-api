@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
 # Set up logging
-logging.basicConfig(filename="app.log", level=logging.INFO)
+# logging.basicConfig(filename="app.log", level=logging.INFO)
 
 # Set up the MySQL connection
 db = pymysql.connect(
@@ -57,11 +57,11 @@ def get_books():
                     "modified_date": row["modified_date"],
                 }
             )
-        logging.info("Successfully retrieved data from database")
+        # logging.info("Successfully retrieved data from database")
         return jsonify(books), 200
     except Exception as e:
         db.rollback()
-        logging.error("Error occurred while retrieving data from database: %s", str(e))
+        # logging.error("Error occurred while retrieving data from database: %s", str(e))
         return jsonify({"error": str(e)}), 500
 
 
@@ -121,39 +121,48 @@ def add_book():
 
         db.commit()
         cursor.close()
-        logging.info("Successfully inserted data into database")
+        # logging.info("Successfully inserted data into database")
         return jsonify({"status": "success"}), 201
 
     except Exception as e:
         db.rollback()
-        logging.error("Error occurred while inserting data into database: %s", str(e))
+        # logging.error("Error occurred while inserting data into database: %s", str(e))
         return jsonify({"error": str(e)}), 500
 
 
 # Delete operation
 @app.route("/api/v1/book/<int:id>", methods=["DELETE"])
 def delete_book(id):
+    print("in delete function")
+    print(id)
     if id is None:
+        print("no id coming in")
         return jsonify({"error": "Book ID is required"}), 400
     if request.method == "DELETE":
-        logging.info("Deleting book_id: " + id)
+        print("in delete method")
+        # logging.info("Deleting book_id: " + id)
         try:
             cursor = db.cursor()
             query = "DELETE FROM books WHERE book_id = %s"
             value = (id,)
-            logging.info(query + value)
+            # logging.info(query + value)
+            print(query, value)
             cursor.execute(query, value)
             db.commit()
             cursor.close()
-            logging.info("Successfully deleted data from database")
+            print("finished db commit")
+            # logging.info("Successfully deleted data from database")
             return jsonify({"status": "success"}), 204
         except Exception as e:
             db.rollback()
-            logging.error(
-                "Error occurred while deleting data from database: %s", str(e)
-            )
+            print("error in delete")
+            print(str(e))
+            # logging.error(
+            #     "Error occurred while deleting data from database: %s", str(e)
+            # )
             return jsonify({"error": str(e)}), 500
     else:
+        print("method not allowed")
         return jsonify({"error": "Method not allowed"}), 405
 
 
