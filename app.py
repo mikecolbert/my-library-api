@@ -1,8 +1,9 @@
 from flask import Flask, jsonify, request
 import pymysql
-import logging
 from dotenv import load_dotenv
 import os
+
+# import logging
 
 # Load environment variables
 load_dotenv()
@@ -12,6 +13,25 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
 # Set up logging
 # logging.basicConfig(filename="app.log", level=logging.INFO)
+
+# Get environment varaibles
+db_host = os.environ.get("DB_HOST")
+db_user = os.environ.get("DB_USER")
+db_password = os.environ.get("DB_PASSWORD")
+db_database = os.environ.get("DB_NAME")
+# ssl={"ca": "./DigiCertGlobalRootCA.crt.pem"},
+# cursorclass=pymysql.cursors.DictCursor,
+
+# Set up MySQL connection config
+db_config = {
+    "host": db_host,
+    "user": db_user,
+    "password": db_password,
+    "db": db_database,
+    "ssl_ca": "./DigiCertGlobalRootCA.crt.pem",
+    "cursorclass": pymysql.cursors.DictCursor,
+}
+
 
 # Set up the MySQL connection
 db = pymysql.connect(
@@ -133,37 +153,53 @@ def add_book():
 # Delete operation
 @app.route("/api/v1/book/<int:id>", methods=["DELETE"])
 def delete_book(id):
-    print("in delete function")
-    print(id)
     if id is None:
-        print("no id coming in")
+        print("No book ID provided")
         return jsonify({"error": "Book ID is required"}), 400
     if request.method == "DELETE":
-        print("in delete method")
+        print("Processing delete request")
         # logging.info("Deleting book_id: " + id)
         try:
-            cursor = db.cursor()
+            conn = pymysql.connect(**db_config)
+            cur = conn.cursor()
+            print(conn)
             query = "DELETE FROM books WHERE book_id = %s"
-            value = (id,)
+            book_id = id
             # logging.info(query + value)
-            print(query, value)
-            cursor.execute(query, value)
-            db.commit()
-            cursor.close()
-            print("finished db commit")
+            print(query, book_id)
+
+            cur.execute(query, (book_id,))
+            conn.commit()
+            # cur.close()
+            print("Record deleted successfully.")
             # logging.info("Successfully deleted data from database")
             return jsonify({"status": "success"}), 204
+
         except Exception as e:
-            db.rollback()
+            conn.rollback()
             print("error in delete")
             print(str(e))
             # logging.error(
             #     "Error occurred while deleting data from database: %s", str(e)
             # )
             return jsonify({"error": str(e)}), 500
+
+            # except mysql.connector.Error as error:
+            #     print("Failed to Delete record from table: {}".format(error))
+        finally:
+            if conn:
+                cur.close()
+                print("MySQL cursor is closed")
+                conn.close()
+                print("MySQL connection is closed")
     else:
-        print("method not allowed")
+        print("Method not allowed")
         return jsonify({"error": "Method not allowed"}), 405
+
+    # TODO: change to mysql.connector?
+    # TODO: add finally to close cursor and connection to other methods
+    # TODO: change to conn = pymysql.connect(**db_config)
+    # TODO: add logging & figure out how to view them
 
 
 # # Update operation
