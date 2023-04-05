@@ -34,14 +34,14 @@ db_config = {
 
 
 # Set up the MySQL connection
-db = pymysql.connect(
-    host=os.environ.get("DB_HOST"),
-    user=os.environ.get("DB_USER"),
-    password=os.environ.get("DB_PASSWORD"),
-    database=os.environ.get("DB_NAME"),
-    ssl={"ca": "./DigiCertGlobalRootCA.crt.pem"},
-    cursorclass=pymysql.cursors.DictCursor,
-)
+# db = pymysql.connect(
+#     host=os.environ.get("DB_HOST"),
+#     user=os.environ.get("DB_USER"),
+#     password=os.environ.get("DB_PASSWORD"),
+#     database=os.environ.get("DB_NAME"),
+#     ssl={"ca": "./DigiCertGlobalRootCA.crt.pem"},
+#     cursorclass=pymysql.cursors.DictCursor,
+# )
 
 
 @app.route("/api/v1/")
@@ -53,11 +53,15 @@ def index():
 @app.route("/api/v1/books", methods=["GET"])
 def get_books():
     try:
-        cursor = db.cursor()
-        cursor.execute("SELECT * FROM books")
-        result = cursor.fetchall()
-        cursor.close()
+        conn = pymysql.connect(**db_config)
+        cur = conn.cursor()
+
+        cur.execute("SELECT * FROM books;")
+        result = cur.fetchall()
+        cur.close()
+
         books = []
+
         for row in result:
             books.append(
                 {
@@ -78,23 +82,35 @@ def get_books():
                 }
             )
         # logging.info("Successfully retrieved data from database")
+
         return jsonify(books), 200
     except Exception as e:
-        db.rollback()
+        conn.rollback()
         # logging.error("Error occurred while retrieving data from database: %s", str(e))
         return jsonify({"error": str(e)}), 500
+
+    finally:
+        if conn:
+            cur.close()
+            print("MySQL cursor is closed")
+            conn.close()
+            print("MySQL connection is closed")
 
 
 # Read operation (get one record)
 @app.route("/api/v1/book/<int:id>", methods=["GET"])
 def get_book(id):
     try:
-        cursor = db.cursor()
+        conn = pymysql.connect(**db_config)
+        cur = conn.cursor()
+
         query = "SELECT * FROM books WHERE book_id = %s"
         value = (id,)
-        cursor.execute(query, value)
-        result = cursor.fetchone()
-        cursor.close()
+
+        cur.execute(query, value)
+        result = cur.fetchone()
+        cur.close()
+
         if result:
             return jsonify(result), 200
         else:
@@ -103,12 +119,21 @@ def get_book(id):
         db.rollback()
         return jsonify({"error": str(e)}), 500
 
+    finally:
+        if conn:
+            cur.close()
+            print("MySQL cursor is closed")
+            conn.close()
+            print("MySQL connection is closed")
+
 
 # Insert operation
 @app.route("/api/v1/books", methods=["POST"])
 def add_book():
     try:
-        cursor = db.cursor()
+        conn = pymysql.connect(**db_config)
+        cur = conn.cursor()
+
         book = request.get_json()
 
         library_user = book["library_user"]
@@ -137,10 +162,10 @@ def add_book():
             source,
             evaluation,
         )
-        cursor.execute(query, values)
+        cur.execute(query, values)
 
-        db.commit()
-        cursor.close()
+        conn.commit()
+        cur.close()
         # logging.info("Successfully inserted data into database")
         return jsonify({"status": "success"}), 201
 
@@ -148,6 +173,13 @@ def add_book():
         db.rollback()
         # logging.error("Error occurred while inserting data into database: %s", str(e))
         return jsonify({"error": str(e)}), 500
+
+    finally:
+        if conn:
+            cur.close()
+            print("MySQL cursor is closed")
+            conn.close()
+            print("MySQL connection is closed")
 
 
 # Delete operation
@@ -162,7 +194,7 @@ def delete_book(id):
         try:
             conn = pymysql.connect(**db_config)
             cur = conn.cursor()
-            print(conn)
+
             query = "DELETE FROM books WHERE book_id = %s"
             book_id = id
             # logging.info(query + value)
