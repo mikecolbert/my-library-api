@@ -19,8 +19,6 @@ db_host = os.environ.get("DB_HOST")
 db_user = os.environ.get("DB_USER")
 db_password = os.environ.get("DB_PASSWORD")
 db_database = os.environ.get("DB_NAME")
-# ssl={"ca": "./DigiCertGlobalRootCA.crt.pem"},
-# cursorclass=pymysql.cursors.DictCursor,
 
 # Set up MySQL connection config
 db_config = {
@@ -33,24 +31,13 @@ db_config = {
 }
 
 
-# Set up the MySQL connection
-# db = pymysql.connect(
-#     host=os.environ.get("DB_HOST"),
-#     user=os.environ.get("DB_USER"),
-#     password=os.environ.get("DB_PASSWORD"),
-#     database=os.environ.get("DB_NAME"),
-#     ssl={"ca": "./DigiCertGlobalRootCA.crt.pem"},
-#     cursorclass=pymysql.cursors.DictCursor,
-# )
-
-
 @app.route("/api/v1/")
 def index():
     return jsonify({"message": "Welcome to the 'My Library' API"}), 200
 
 
 # Read operation (get all records)
-@app.route("/api/v1/books", methods=["GET"])
+@app.route("/api/v1/book", methods=["GET"])
 def get_books():
     try:
         conn = pymysql.connect(**db_config)
@@ -128,7 +115,7 @@ def get_book(id):
 
 
 # Insert operation
-@app.route("/api/v1/books", methods=["POST"])
+@app.route("/api/v1/book", methods=["POST"])
 def add_book():
     try:
         conn = pymysql.connect(**db_config)
@@ -228,6 +215,7 @@ def delete_book(id):
         print("Method not allowed")
         return jsonify({"error": "Method not allowed"}), 405
 
+    # TODO: implment update operation
     # TODO: change to mysql.connector?
     # TODO: add finally to close cursor and connection to other methods
     # TODO: change to conn = pymysql.connect(**db_config)
